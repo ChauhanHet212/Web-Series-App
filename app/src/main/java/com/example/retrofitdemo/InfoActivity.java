@@ -71,17 +71,6 @@ public class InfoActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Casts>> call, Response<List<Casts>> response) {
                 castsList.addAll(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<List<Casts>> call, Throwable t) {
-
-            }
-        });
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
                 progress.setVisibility(View.GONE);
                 if (castsList != null) {
                     findViewById(R.id.cast_textv).setVisibility(View.VISIBLE);
@@ -90,8 +79,12 @@ public class InfoActivity extends AppCompatActivity {
                     peoplesRecycler.setAdapter(adapter);
                 }
             }
-        }, 3000);
 
+            @Override
+            public void onFailure(Call<List<Casts>> call, Throwable t) {
+
+            }
+        });
 
         try {
             Picasso.get().load(movie.getImage().getOriginal()).placeholder(R.drawable.placeholder).into(main_bg);

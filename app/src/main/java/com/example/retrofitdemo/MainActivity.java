@@ -46,6 +46,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Shows>> call, Response<List<Shows>> response) {
                 allShows.addAll(response.body());
+                progressBar.setVisibility(View.GONE);
+                moviesRecycler.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
+                moviesAdapter = new MoviesAdapter(MainActivity.this, allShows);
+                moviesRecycler.setAdapter(moviesAdapter);
             }
 
             @Override
@@ -54,19 +58,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.GONE);
-                moviesRecycler.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
-                moviesAdapter = new MoviesAdapter(MainActivity.this, allShows);
-                moviesRecycler.setAdapter(moviesAdapter);
-            }
-        }, 3000);
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                progressBar.setVisibility(View.VISIBLE);
+
                 Retro.getInstance().retroAPI.getSearchedShows(query).enqueue(new Callback<List<SearchedShow>>() {
                     @Override
                     public void onResponse(Call<List<SearchedShow>> call, Response<List<SearchedShow>> response) {
@@ -74,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < response.body().size(); i++) {
                             filteredList.add(response.body().get(i).getShow());
                         }
+                        moviesAdapter.filter(filteredList);
+                        progressBar.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -81,15 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-
-                progressBar.setVisibility(View.VISIBLE);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        moviesAdapter.filter(filteredList);
-                        progressBar.setVisibility(View.GONE);
-                    }
-                }, 3000);
                 return true;
             }
 
